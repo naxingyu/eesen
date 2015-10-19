@@ -145,6 +145,7 @@ for iter in $(seq $start_epoch_num $max_iters); do
         ${utts_per_avg:+ --utts-per-avg=$utts_per_avg} \
         "$feats_tr" "$labels_tr" $dir/nnet/nnet.iter$[iter-1] $dir/nnet/nnet.iter${iter} >& $dir/log/tr.iter$iter.log || exit 1
       tracc=$(cat $dir/log/tr.iter${iter}.1.log | grep "TOTAL TOKEN_ACCURACY" | tail -n 1 | awk '{ acc=$(NF-1); gsub("%","",acc); print acc; }')
+      rm $dir/nnet/nnet.iter${iter}.job*
     fi
 
 

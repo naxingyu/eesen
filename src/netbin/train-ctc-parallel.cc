@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
 
     if (num_jobs != 1) {
       if (!crossvalidate) {
-        comm_avg_weights(net, job_id, num_jobs, avg_count, target_model_filename);
+        comm_avg_weights(net, job_id, num_jobs, avg_count, target_model_filename, true /*avg_only*/);
         std::string avg_model_name = comm_avg_model_name(target_model_filename, avg_count);
         rename(avg_model_name.c_str(), target_model_filename.c_str());
       }

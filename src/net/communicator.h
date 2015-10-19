@@ -37,7 +37,7 @@ std::string comm_avg_model_name(const std::string & base_model_filename, const i
 }
 
 void comm_avg_weights(Net &net, const int &job_id, const int &num_jobs, const int &count,
-                      const std::string &base_model_filename) {
+                      const std::string &base_model_filename, const bool avg_only = false) {
   bool binary = true;
   std::string avg_model_filename = comm_avg_model_name(base_model_filename, count);
 
@@ -79,9 +79,9 @@ void comm_avg_weights(Net &net, const int &job_id, const int &num_jobs, const in
 
     // clean up last average model
     std::string last_avg_model_filename = comm_avg_model_name(base_model_filename, count-1);
-    if (FileExist(last_avg_model_filename.c_str())) {
-      remove(last_avg_model_filename.c_str());
-    }
+    //if (FileExist(last_avg_model_filename.c_str())) {
+    //  remove(last_avg_model_filename.c_str());
+    //}
   } else {
     std::string done_filename = comm_done_filename(base_model_filename, 1);
     if (FileExist(done_filename.c_str()))  return; // Main process is done
@@ -91,13 +91,15 @@ void comm_avg_weights(Net &net, const int &job_id, const int &num_jobs, const in
     std::string tmp_subjob_model_filename = subjob_model_filename + ".$$";
     net.Write(tmp_subjob_model_filename, binary);  // write in binary
     std::rename(tmp_subjob_model_filename.c_str(), subjob_model_filename.c_str());
-    
-    while (!FileExist(avg_model_filename.c_str())) {
-      usleep(500);
+
+    if (!avg_only) {
+      while (!FileExist(avg_model_filename.c_str())) {
+        usleep(500);
+      }
+      KALDI_LOG << "Reading averaged model from " << avg_model_filename;
+      net.ReRead(avg_model_filename);
+      remove(subjob_model_filename.c_str());
     }
-    KALDI_LOG << "Reading averaged model from " << avg_model_filename;
-    net.ReRead(avg_model_filename);
-    remove(subjob_model_filename.c_str());
   }
 }
 
