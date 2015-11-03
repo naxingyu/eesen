@@ -98,7 +98,7 @@ feats_cv="ark,s,cs:apply-cmvn --norm-vars=$norm_vars --utt2spk=ark:$data_cv/utt2
 
 if [ $nj -eq 1 ]; then
   feats_tr=$(echo $feats_tr | sed 's#JOB#1#')
-  feats_tr=$(echo $feats_cv | sed 's#JOB#1#')
+  feats_cv=$(echo $feats_cv | sed 's#JOB#1#')
 fi
 
 if $add_deltas; then
@@ -130,7 +130,7 @@ for iter in $(seq $start_epoch_num $max_iters); do
     echo -n "EPOCH $iter RUNNING ... "
 
     # train
-    if [ -z "$nj" ]; then
+    if [ "$nj" == 1 ]; then
       $train_tool --report-step=$report_step --num-sequence=$num_sequence --frame-limit=$frame_num_limit \
         --learn-rate=$learn_rate --momentum=$momentum \
         --verbose=$verbose \
@@ -154,7 +154,7 @@ for iter in $(seq $start_epoch_num $max_iters); do
     echo -n "ENDS [$end_time]: "
 
     # validation
-    if [ -z "$nj" ]; then
+    if [ "$nj" == 1 ]; then
       $train_tool --report-step=$report_step --num-sequence=$valid_num_sequence --frame-limit=$frame_num_limit \
         --cross-validate=true \
         --learn-rate=$learn_rate \
